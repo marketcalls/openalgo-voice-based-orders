@@ -1,0 +1,7 @@
+Flask
+Flask-CORS
+word2number
+requests
+ratelimit
+python-dotenv
+openalgo

@@ -3,22 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice-Activated Trading System</title>
+    <title>OpenAlgo Voice-Based Trading System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 p-8">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-4">Voice-Activated Trading System</h1>
+        <h1 class="text-3xl font-bold mb-4">OpenAlgo Voice-Based Trading System</h1>
+        
+        <!-- Instructions Section -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">How to Use:</h2>
+            <ul class="list-disc list-inside text-gray-700">
+                <li>Select the desired <strong>Exchange</strong> and <strong>Product Type</strong> from the dropdown menus.</li>
+                <li>Click the <strong>"Start Listening"</strong> button to begin.</li>
+                <li>Speak your command clearly, e.g., "MILO buy 20 shares of TCS".</li>
+                <li>After a brief pause, your order will be processed automatically.</li>
+                <li>To stop listening, click the <strong>"Stop Listening"</strong> button.</li>
+            </ul>
+            <p class="mt-2 text-gray-600">Supported activation commands: <strong>MILO</strong>, <strong>MYLO</strong>, <strong>MY LOVE</strong></p>
+        </div>
+        
+        <!-- Exchange Selection -->
+        <div class="mb-4">
+            <label for="exchange" class="block text-gray-700 font-medium mb-2">Select Exchange:</label>
+            <select id="exchange" class="w-full p-2 border border-gray-300 rounded">
+                <option value="NSE">NSE: NSE Equity</option>
+                <option value="BSE">BSE: BSE Equity</option>
+            </select>
+        </div>
+        
+        <!-- Product Type Selection -->
+        <div class="mb-4">
+            <label for="productType" class="block text-gray-700 font-medium mb-2">Select Product Type:</label>
+            <select id="productType" class="w-full p-2 border border-gray-300 rounded">
+                <option value="MIS">MIS: Margin Intraday Square off</option>
+                <option value="CNC">CNC: Cash &amp; Carry for equity</option>            
+            </select>
+        </div>
+        
+        <!-- Listening Controls -->
         <div class="mb-4">
             <button id="toggleButton" class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white">
                 Start Listening
             </button>
         </div>
+        
+        <!-- Flash Messages -->
         <div id="flashMessages" class="mb-4"></div>
+        
+        <!-- Transcription History -->
         <div class="bg-white p-4 rounded shadow mb-4">
             <h2 class="text-xl font-semibold mb-2">Transcription History:</h2>
             <div id="transcriptionHistory" class="space-y-2"></div>
         </div>
+        
+        <!-- Status Section -->
         <div class="bg-white p-4 rounded shadow">
             <h2 class="text-xl font-semibold mb-2">Status:</h2>
             <p id="status" class="text-sm text-gray-600"></p>
@@ -30,6 +69,8 @@
         const transcriptionHistoryElement = document.getElementById('transcriptionHistory');
         const statusElement = document.getElementById('status');
         const flashMessagesElement = document.getElementById('flashMessages');
+        const exchangeSelect = document.getElementById('exchange');
+        const productTypeSelect = document.getElementById('productType');
         let mediaRecorder;
         let isListening = false;
         let audioContext;
@@ -50,6 +91,7 @@
             flashDiv.className = `p-4 rounded mb-4 ${
                 type === 'buy' ? 'bg-green-100 text-green-700' :
                 type === 'sell' ? 'bg-red-100 text-red-700' :
+                type === 'error' ? 'bg-blue-100 text-blue-700' :
                 'bg-yellow-100 text-yellow-700'
             }`;
             flashDiv.textContent = message;
@@ -76,7 +118,7 @@
             if (orderResponse) {
                 const orderP = document.createElement('p');
                 if (orderResponse.error) {
-                    orderP.className = 'text-red-500';
+                    orderP.className = 'text-blue-500'; // Changed to blue for errors
                     orderP.textContent = `Order Error: ${orderResponse.error}`;
                 } else {
                     const action = transcription.toLowerCase().includes('buy') ? 'buy' : 'sell';
@@ -93,6 +135,8 @@
         async function sendAudioToServer(audioBlob) {
             const formData = new FormData();
             formData.append('file', audioBlob, 'audio.webm');
+            formData.append('exchange', exchangeSelect.value);
+            formData.append('product_type', productTypeSelect.value);
 
             try {
                 const response = await fetch('/transcribe', {

@@ -97,47 +97,51 @@ def remove_punctuation(text):
     return re.sub(r'[^\w\s]', '', text)
 
 def parse_command(transcript):
-    words = transcript.upper().split()
+    transcript_upper = transcript.upper()
     try:
         for activate_command in voice_activate_commands:
             activate_command_upper = activate_command.upper()
-            if activate_command_upper in words:
-                action_index = words.index(activate_command_upper) + 1
-                if action_index >= len(words):
-                    logger.error("Action word missing after activation command.")
-                    return None, None, None
+            # Use regex to search for the activation command as a whole word or phrase
+            pattern = r'\b' + re.escape(activate_command_upper) + r'\b'
+            match = re.search(pattern, transcript_upper)
+            if match:
+                # Extract the portion of the transcript after the activation command
+                command_after = transcript_upper[match.end():].strip()
                 
-                action_word = words[action_index].lower()
-                action = command_synonyms.get(action_word, action_word.upper())
+                # Define regex pattern to extract action, quantity, and symbol
+                # Example: "BUY 100 SHARES OF TCS"
+                command_pattern = r'^(BUY|SELL)\s+(\d+|\w+)\s+SHARES\s+OF\s+(\w+)$'
+                command_match = re.match(command_pattern, command_after)
                 
-                quantity_index = action_index + 1
-                if quantity_index >= len(words):
-                    logger.error("Quantity word missing after action word.")
-                    return None, None, None
-                
-                quantity_word = words[quantity_index].lower()
-                try:
-                    quantity = int(quantity_word)
-                except ValueError:
-                    quantity = w2n.word_to_num(quantity_word)
-                
-                tradingsymbol = words[-1]
-                
-                logger.info(f'Parsed command - Action: {action}, Quantity: {quantity}, Symbol: {tradingsymbol}')
-                return action, quantity, tradingsymbol
-    except (ValueError, IndexError) as e:
+                if command_match:
+                    action_word = command_match.group(1).lower()
+                    quantity_word = command_match.group(2).lower()
+                    tradingsymbol = command_match.group(3).upper()
+                    
+                    action = command_synonyms.get(action_word, action_word.upper())
+                    
+                    try:
+                        quantity = int(quantity_word)
+                    except ValueError:
+                        quantity = w2n.word_to_num(quantity_word)
+                    
+                    logger.info(f'Parsed command - Action: {action}, Quantity: {quantity}, Symbol: {tradingsymbol}')
+                    return action, quantity, tradingsymbol
+                else:
+                    logger.error("Command pattern not matched.")
+    except Exception as e:
         logger.error(f"Error parsing command: {str(e)}")
     return None, None, None
 
-def place_order(action, quantity, tradingsymbol):
+def place_order(action, quantity, tradingsymbol, exchange, product_type):
     try:
         response = openalgo_client.placeorder(
             strategy="VoiceOrder",
             symbol=tradingsymbol,
             action=action,
-            exchange="NSE",
+            exchange=exchange,
             price_type="MARKET",
-            product="MIS",
+            product=product_type,
             quantity=quantity
         )
         logger.info(f"Order placed: {response}")
@@ -160,6 +164,22 @@ def transcribe():
         logger.error(f"Unsupported audio format: {file.mimetype}")
         return jsonify({"error": "Unsupported audio format"}), 400
     
+    # Retrieve Exchange and Product Type from form data
+    exchange = request.form.get('exchange')
+    product_type = request.form.get('product_type')
+    
+    # Validate Exchange and Product Type
+    valid_exchanges = ["NSE", "NFO", "CDS", "BSE", "BFO", "BCD", "MCX", "NCDEX"]
+    valid_product_types = ["CNC", "NRML", "MIS"]
+    
+    if exchange not in valid_exchanges:
+        logger.error(f"Invalid exchange selected: {exchange}")
+        return jsonify({"error": f"Invalid exchange selected: {exchange}"}), 400
+    
+    if product_type not in valid_product_types:
+        logger.error(f"Invalid product type selected: {product_type}")
+        return jsonify({"error": f"Invalid product type selected: {product_type}"}), 400
+    
     try:
         file_data = file.read()
         logger.info(f"Received audio file: name={file.filename}, size={len(file_data)} bytes, content_type={file.content_type}")
@@ -171,7 +191,7 @@ def transcribe():
         action, quantity, tradingsymbol = parse_command(transcription)
         
         if all([action, quantity, tradingsymbol]):
-            order_response = place_order(action, quantity, tradingsymbol)
+            order_response = place_order(action, quantity, tradingsymbol, exchange, product_type)
             result['order_response'] = order_response
         else:
             result['order_response'] = {"error": "Invalid command"}
@@ -189,4 +209,4 @@ def transcribe():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,port=5001)
