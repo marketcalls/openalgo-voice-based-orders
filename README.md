@@ -31,7 +31,7 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
 ## Features
 
 - **Voice Command Processing:** Record and process voice commands to execute trading orders.
-- **Multiple Activation Commands:** Supports activation phrases like "MILO," "MYLO,"."
+- **Multiple Activation Commands:** Supports activation phrases like "MILO," "MYLO"
 - **Exchange and Product Type Selection:** Users can select from various exchanges and product types before issuing commands.
 - **Continuous Listening:** Automatically listens for commands and processes them without requiring repeated manual initiation.
 - **Real-Time Feedback:** Displays transcription history, order statuses, and flash messages to inform users about order outcomes.
