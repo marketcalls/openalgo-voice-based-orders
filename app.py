@@ -50,13 +50,31 @@ except json.JSONDecodeError as e:
 
 # Command synonyms to handle speech recognition variations
 command_synonyms = {
-    "bhai": "BUY",  "bi": "BUY",
-    "by": "BUY",    "bye": "BUY",
-    "buy": "BUY",   "cell": "SELL",
-    "cel": "SELL",  "self": "SELL",
-    "sale": "SELL", "sel": "SELL",
-    "sell": "SELL"
+    "BHai": "BUY",  "BI": "BUY",
+    "BY": "BUY",    "BYE": "BUY",
+    "BUY": "BUY",   "CELL": "SELL",
+    "CEL": "SELL",  "SELF": "SELL",
+    "SALE": "SELL", "SEL": "SELL",
+    "SELL": "SELL"
 }
+
+def normalize_action_words(text, synonyms):
+    """
+    Replace synonyms in the text with their standardized forms.
+
+    Args:
+        text (str): The input text to normalize.
+        synonyms (dict): A dictionary mapping synonyms to standardized words.
+
+    Returns:
+        str: The normalized text with synonyms replaced.
+    """
+    words = text.split()
+    normalized_words = []
+    for word in words:
+        normalized_word = synonyms.get(word.upper(), word.upper())
+        normalized_words.append(normalized_word)
+    return ' '.join(normalized_words)
 
 @app.route('/')
 def index():
@@ -97,16 +115,29 @@ def remove_punctuation(text):
     return re.sub(r'[^\w\s]', '', text)
 
 def parse_command(transcript):
+    """
+    Parse the transcribed text to extract trading commands.
+
+    Args:
+        transcript (str): The transcribed text from the audio.
+
+    Returns:
+        tuple: (action, quantity, tradingsymbol) or (None, None, None) if parsing fails.
+    """
     transcript_upper = transcript.upper()
+    
+    # Normalize action words using synonyms before regex matching
+    normalized_transcript = normalize_action_words(transcript_upper, command_synonyms)
+    
     try:
         for activate_command in voice_activate_commands:
             activate_command_upper = activate_command.upper()
             # Use regex to search for the activation command as a whole word or phrase
             pattern = r'\b' + re.escape(activate_command_upper) + r'\b'
-            match = re.search(pattern, transcript_upper)
+            match = re.search(pattern, normalized_transcript)
             if match:
                 # Extract the portion of the transcript after the activation command
-                command_after = transcript_upper[match.end():].strip()
+                command_after = normalized_transcript[match.end():].strip()
                 
                 # Define regex pattern to extract action, quantity, and symbol
                 # Example: "BUY 100 SHARES OF TCS"
@@ -114,15 +145,14 @@ def parse_command(transcript):
                 command_match = re.match(command_pattern, command_after)
                 
                 if command_match:
-                    action_word = command_match.group(1).lower()
-                    quantity_word = command_match.group(2).lower()
+                    action = command_match.group(1)  # Already standardized (BUY/SELL)
+                    quantity_word = command_match.group(2)
                     tradingsymbol = command_match.group(3).upper()
-                    
-                    action = command_synonyms.get(action_word, action_word.upper())
                     
                     try:
                         quantity = int(quantity_word)
                     except ValueError:
+                        # Convert word numbers to integers (e.g., "twenty-three" -> 23)
                         quantity = w2n.word_to_num(quantity_word)
                     
                     logger.info(f'Parsed command - Action: {action}, Quantity: {quantity}, Symbol: {tradingsymbol}')
@@ -134,6 +164,19 @@ def parse_command(transcript):
     return None, None, None
 
 def place_order(action, quantity, tradingsymbol, exchange, product_type):
+    """
+    Place an order using the OpenAlgo API.
+
+    Args:
+        action (str): 'BUY' or 'SELL'.
+        quantity (int): Number of shares to trade.
+        tradingsymbol (str): Ticker symbol of the asset.
+        exchange (str): Selected exchange (e.g., 'NSE').
+        product_type (str): Type of product (e.g., 'CNC', 'NRML', 'MIS').
+
+    Returns:
+        dict: Response from the OpenAlgo API or an error message.
+    """
     try:
         response = openalgo_client.placeorder(
             strategy="VoiceOrder",
@@ -209,4 +252,4 @@ def transcribe():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True,port=5001)
+    app.run(debug=True, port=5001)
