@@ -31,7 +31,7 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
 ## Features
 
 - **Voice Command Processing:** Record and process voice commands to execute trading orders.
-- **Multiple Activation Commands:** Supports activation phrases like "MILO," "MYLO," and "MY LOVE."
+- **Multiple Activation Commands:** Supports activation phrases like "MILO," "MYLO,"."
 - **Exchange and Product Type Selection:** Users can select from various exchanges and product types before issuing commands.
 - **Continuous Listening:** Automatically listens for commands and processes them without requiring repeated manual initiation.
 - **Real-Time Feedback:** Displays transcription history, order statuses, and flash messages to inform users about order outcomes.
@@ -151,7 +151,7 @@ Before setting up the project, ensure you have the following installed on your s
     GROQ_API_KEY=your_groq_api_key
     OPENALGO_API_KEY=your_openalgo_api_key
     OPENALGO_HOST=https://openalgo.in
-    VOICE_ACTIVATE_COMMAND=["MILO", "MYLO", "MY LOVE"]
+    VOICE_ACTIVATE_COMMAND=["MILO", "MYLO"]
     SECRET_KEY=your_flask_secret_key
     ```
 
@@ -205,7 +205,7 @@ Before setting up the project, ensure you have the following installed on your s
         - Speak your trading command clearly, for example:
             - "MILO buy 100 shares of TCS."
             - "MYLO sell 50 shares of Infosys."
-            - "MY LOVE buy 20 shares of Zomato."
+            - "MILO buy 20 shares of Zomato."
     
     - **Automatic Processing:**
         - After a brief pause (detected by silence), the system will process the command, place the order, and display the results.
