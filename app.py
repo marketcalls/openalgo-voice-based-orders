@@ -281,8 +281,14 @@ def transcribe():
         if all([action, quantity, tradingsymbol]):
             order_response = place_order(action, quantity, tradingsymbol, exchange, product_type)
             result['order_response'] = order_response
+            result['action'] = action
+            result['quantity'] = quantity
+            result['symbol'] = tradingsymbol  # Updated field name
         else:
             result['order_response'] = {"error": "Invalid command"}
+            result['action'] = None
+            result['quantity'] = None
+            result['symbol'] = None  # Ensure 'symbol' is set to None when command is invalid
         
         result['text'] = transcription  # Update the text with punctuation removed
         return jsonify(result)

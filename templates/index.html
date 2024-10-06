@@ -80,7 +80,7 @@
 
         // Configuration for silence detection
         const SILENCE_THRESHOLD = 0.01; // Adjust based on testing
-        const SILENCE_DURATION = 1000; // 1 seconds of silence
+        const SILENCE_DURATION = 1000; // 1 second of silence
 
         function updateStatus(message) {
             statusElement.textContent = message;
@@ -101,7 +101,7 @@
             }, 5000);
         }
 
-        function addTranscriptionEntry(transcription, orderResponse, timestamp) {
+        function addTranscriptionEntry(transcription, orderResponse, action, quantity, symbol, timestamp) {
             const entryDiv = document.createElement('div');
             entryDiv.className = 'p-3 bg-gray-100 rounded';
 
@@ -115,16 +115,39 @@
             transcriptionP.textContent = `Transcription: ${transcription}`;
             entryDiv.appendChild(transcriptionP);
 
+            // Display Parsed Command Details
+            if (action && quantity && symbol) {
+                const commandDetailsDiv = document.createElement('div');
+                commandDetailsDiv.className = 'mt-2';
+                
+                const actionP = document.createElement('p');
+                actionP.className = 'text-sm text-gray-700';
+                actionP.textContent = `Action: ${action}`;
+                commandDetailsDiv.appendChild(actionP);
+                
+                const quantityP = document.createElement('p');
+                quantityP.className = 'text-sm text-gray-700';
+                quantityP.textContent = `Quantity: ${quantity}`;
+                commandDetailsDiv.appendChild(quantityP);
+                
+                const symbolP = document.createElement('p');
+                symbolP.className = 'text-sm text-gray-700';
+                symbolP.textContent = `Symbol: ${symbol}`;
+                commandDetailsDiv.appendChild(symbolP);
+                
+                entryDiv.appendChild(commandDetailsDiv);
+            }
+
             if (orderResponse) {
                 const orderP = document.createElement('p');
                 if (orderResponse.error) {
                     orderP.className = 'text-blue-500'; // Changed to blue for errors
                     orderP.textContent = `Order Error: ${orderResponse.error}`;
                 } else {
-                    const action = transcription.toLowerCase().includes('buy') ? 'buy' : 'sell';
-                    orderP.className = action === 'buy' ? 'text-green-500' : 'text-red-500';
+                    const actionType = action.toLowerCase();
+                    orderP.className = actionType === 'buy' ? 'text-green-500' : 'text-red-500';
                     orderP.textContent = `Order Placed - ID: ${orderResponse.orderid}`;
-                    showFlashMessage(`${action.toUpperCase()} order placed successfully`, action);
+                    showFlashMessage(`${actionType.toUpperCase()} order placed successfully`, actionType);
                 }
                 entryDiv.appendChild(orderP);
             }
@@ -151,7 +174,14 @@
 
                 const data = await response.json();
                 const timestamp = new Date().toLocaleString();
-                addTranscriptionEntry(data.text, data.order_response, timestamp);
+                addTranscriptionEntry(
+                    data.text,
+                    data.order_response,
+                    data.action,
+                    data.quantity,
+                    data.symbol,
+                    timestamp
+                );
                 updateStatus('Transcription and order processing complete');
             } catch (error) {
                 console.error('Error processing audio:', error);
