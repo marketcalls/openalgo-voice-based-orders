@@ -1,6 +1,6 @@
 # Voice-Activated Trading System
 
-This project is a voice based order placement system using Groq and OpenAI Whisper and OpenAlgo.
+This project is a voice based order placement system using Groq and  Whisper (Speech to Text Models) and OpenAlgo.
 
 
 ## Table of Contents
@@ -32,7 +32,7 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
 - **Voice Command Processing:** Record and process voice commands to execute trading orders.
 - **Multiple Activation Commands:** Supports activation phrases like "MILO," "MYLO"
 - **Exchange and Product Type Selection:** Users can select from various exchanges and product types before issuing commands.
-- **Model Selection:** Choose from different Whisper models for audio transcription.
+- **Model Selection:** Choose from different Whisper models (whisper-large-v3, whisper-large-v3-turbo, distil-whisper-large-v3-en) for audio transcription.
 - **Continuous Listening:** Automatically listens for commands and processes them without requiring repeated manual initiation.
 - **Real-Time Feedback:** Displays transcription history, order statuses, and flash messages to inform users about order outcomes.
 - **Error Handling:** Provides clear error messages in blue when orders fail due to invalid commands or other issues.
@@ -279,11 +279,11 @@ Before setting up the project, ensure you have the following installed on your s
 
 3. **Transcription Errors**
 
-    - **Cause:** Poor audio quality, unclear speech, or incorrect model selection.
+    - **Cause:** Poor audio quality, unclear speech, or suboptimal model selection.
     - **Solution:**
         - Speak clearly and ensure minimal background noise.
         - Use a high-quality microphone for better audio capture.
-        - Try different Whisper models to see which one performs best for your voice and accent.
+        - Try different Whisper models to find the one that works best for your voice and accent.
 
 4. **API Key Errors**
 
