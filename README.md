@@ -150,7 +150,7 @@ Before setting up the project, ensure you have the following installed on your s
     ```env
     GROQ_API_KEY=your_groq_api_key
     OPENALGO_API_KEY=your_openalgo_api_key
-    OPENALGO_HOST=https://openalgo.in
+    OPENALGO_HOST=http://127.0.0.1:5000/
     VOICE_ACTIVATE_COMMAND=["MILO", "MYLO"]
     SECRET_KEY=your_flask_secret_key
     ```
@@ -182,14 +182,14 @@ Before setting up the project, ensure you have the following installed on your s
     python app.py
     ```
 
-    The server should start at `http://127.0.0.1:5000/`.
+    The server should start at `http://127.0.0.1:5001/`.
 
 2. **Access the Application**
 
     Open your web browser and navigate to:
 
     ```
-    http://127.0.0.1:5000/
+    http://127.0.0.1:5001/
     ```
 
 3. **Using the System**
@@ -203,9 +203,9 @@ Before setting up the project, ensure you have the following installed on your s
     
     - **Issue Voice Commands:**
         - Speak your trading command clearly, for example:
-            - "MILO buy 100 shares of TCS."
-            - "MYLO sell 50 shares of Infosys."
-            - "MILO buy 20 shares of Zomato."
+            - "MILO buy 100  TCS."
+            - "MYLO sell 50 Infosys."
+            - "MILO buy 20 Zomato."
     
     - **Automatic Processing:**
         - After a brief pause (detected by silence), the system will process the command, place the order, and display the results.
@@ -239,7 +239,7 @@ Before setting up the project, ensure you have the following installed on your s
             "task": "transcribe",
             "language": "English",
             "duration": 6.47,
-            "text": "MILO buy 100 shares of TCS.",
+            "text": "MILO buy 100 TCS.",
             "segments": [...],
             "order_response": {
                 "orderid": "1234567890",
