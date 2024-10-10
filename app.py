@@ -115,7 +115,7 @@ def index():
 
 @sleep_and_retry
 @limits(calls=15, period=60)  # 15 calls per minute
-def call_groq_api(file_data):
+def call_groq_api(file_data, model):
     url = "https://api.groq.com/openai/v1/audio/transcriptions"
     headers = {
         "Authorization": f"Bearer {os.getenv('GROQ_API_KEY')}"
@@ -126,7 +126,7 @@ def call_groq_api(file_data):
             "file": ("audio.webm", file_data, "audio/webm")
         }
         data = {
-            "model": "whisper-large-v3",
+            "model": model,
             "language": "en",
             "response_format": "verbose_json"
         }
@@ -251,13 +251,15 @@ def transcribe():
         logger.error(f"Unsupported audio format: {file.mimetype}")
         return jsonify({"error": "Unsupported audio format"}), 400
     
-    # Retrieve Exchange and Product Type from form data
+    # Retrieve Exchange, Product Type, and Model from form data
     exchange = request.form.get('exchange')
     product_type = request.form.get('product_type')
+    model = request.form.get('model')
     
     # Validate Exchange and Product Type
     valid_exchanges = ["NSE", "NFO", "CDS", "BSE", "BFO", "BCD", "MCX", "NCDEX"]
     valid_product_types = ["CNC", "NRML", "MIS"]
+    valid_models = ["whisper-large-v3", "whisper-large-v3-turbo", "distil-whisper-large-v3-en"]
     
     if exchange not in valid_exchanges:
         logger.error(f"Invalid exchange selected: {exchange}")
@@ -267,10 +269,14 @@ def transcribe():
         logger.error(f"Invalid product type selected: {product_type}")
         return jsonify({"error": f"Invalid product type selected: {product_type}"}), 400
     
+    if model not in valid_models:
+        logger.error(f"Invalid model selected: {model}")
+        return jsonify({"error": f"Invalid model selected: {model}"}), 400
+    
     try:
         file_data = file.read()
         logger.info(f"Received audio file: name={file.filename}, size={len(file_data)} bytes, content_type={file.content_type}")
-        result = call_groq_api(file_data)
+        result = call_groq_api(file_data, model)
         logger.info(f"Transcription result: {result}")
         
         # Process the transcription and place order if valid

@@ -1,4 +1,3 @@
-
 # Voice-Activated Trading System
 
 This project is a voice based order placement system using Groq and OpenAI Whisper and OpenAlgo.
@@ -33,13 +32,12 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
 - **Voice Command Processing:** Record and process voice commands to execute trading orders.
 - **Multiple Activation Commands:** Supports activation phrases like "MILO," "MYLO"
 - **Exchange and Product Type Selection:** Users can select from various exchanges and product types before issuing commands.
+- **Model Selection:** Choose from different Whisper models for audio transcription.
 - **Continuous Listening:** Automatically listens for commands and processes them without requiring repeated manual initiation.
 - **Real-Time Feedback:** Displays transcription history, order statuses, and flash messages to inform users about order outcomes.
 - **Error Handling:** Provides clear error messages in blue when orders fail due to invalid commands or other issues.
 
 ---
-
-
 
 ### Components
 
@@ -48,7 +46,7 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
     - **Responsibilities:**
         - Capture audio from the user's microphone.
         - Detect silence to determine when to send audio data.
-        - Allow users to select **Exchange** and **Product Type**.
+        - Allow users to select **Exchange**, **Product Type**, and **Model**.
         - Display transcription history and order statuses.
         - Provide user feedback through flash messages and status updates.
 
@@ -56,13 +54,13 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
     - **Technologies:** Python, Flask, Flask-CORS
     - **Responsibilities:**
         - Receive audio data and additional parameters from the frontend.
-        - Transcribe audio using the **Groq API**.
+        - Transcribe audio using the **Groq API** with the selected model.
         - Parse transcribed text to extract trading commands.
         - Place orders through the **OpenAlgo API**.
         - Send responses back to the frontend with transcription and order status.
 
 3. **External Services**
-    - **Groq API:** Transcribes audio recordings into text.
+    - **Groq API:** Transcribes audio recordings into text using selected Whisper models.
     - **OpenAlgo API:** Executes trading orders based on parsed commands.
 
 4. **Environment Configuration**
@@ -86,7 +84,7 @@ The **Voice-Activated Trading System** is a sophisticated platform that allows u
     - dotenv
 
 - **APIs:**
-    - Groq API for audio transcription
+    - Groq API for audio transcription (with multiple Whisper model options)
     - OpenAlgo API for placing trading orders
 
 ---
@@ -194,8 +192,8 @@ Before setting up the project, ensure you have the following installed on your s
 
 3. **Using the System**
 
-    - **Select Exchange and Product Type:**
-        - Choose the desired **Exchange** and **Product Type** from the dropdown menus.
+    - **Select Exchange, Product Type, and Model:**
+        - Choose the desired **Exchange**, **Product Type**, and **Model** from the dropdown menus.
     
     - **Start Listening:**
         - Click the **"Start Listening"** button to begin issuing voice commands.
@@ -231,6 +229,7 @@ Before setting up the project, ensure you have the following installed on your s
         - `file`: Audio file (`audio.webm`, `audio/wav`, etc.)
         - `exchange`: Selected exchange (e.g., NSE, BSE)
         - `product_type`: Selected product type (e.g., CNC, NRML, MIS)
+        - `model`: Selected Whisper model for transcription
 
 - **Response:**
     - **Success:**
@@ -280,10 +279,11 @@ Before setting up the project, ensure you have the following installed on your s
 
 3. **Transcription Errors**
 
-    - **Cause:** Poor audio quality or unclear speech.
+    - **Cause:** Poor audio quality, unclear speech, or incorrect model selection.
     - **Solution:**
         - Speak clearly and ensure minimal background noise.
         - Use a high-quality microphone for better audio capture.
+        - Try different Whisper models to see which one performs best for your voice and accent.
 
 4. **API Key Errors**
 
@@ -362,7 +362,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-- **Groq API:** For providing robust audio transcription services.
+- **Groq API:** For providing robust audio transcription services with multiple Whisper model options.
 - **OpenAlgo API:** For facilitating seamless order placements in the trading system.
 - **Tailwind CSS:** For enabling rapid and responsive frontend development.
 - **Flask Community:** For the comprehensive backend framework and extensions.
