@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from word2number import w2n
-from openalgo.orders import api
+from openalgo import api
 import os
 from dotenv import load_dotenv
 import requests
